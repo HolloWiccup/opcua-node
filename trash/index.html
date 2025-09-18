@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мониторинг качества сигнала</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .value-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+        }
+
+        .status {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+
+        .connection-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .connected {
+            background: #4CAF50;
+        }
+
+        .disconnected {
+            background: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Качество сигнала</h1>
+        
+        <div class="status">
+            <span id="connectionStatus" class="connection-status disconnected"></span>
+            Статус подключения: <span id="statusText">Не подключено</span>
+        </div>
+
+        <div class="value-display" id="valueDisplay">0%</div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+
+        <div class="timestamp" id="timestamp">--:--:--</div>
+    </div>
+
+    <script>
+        let isConnected = false;
+
+        function updateDisplay(data) {
+            document.getElementById('valueDisplay').textContent = data.value.toFixed(2) + '%';
+            document.getElementById('progressBar').style.width = data.percentage + '%';
+            document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleTimeString();
+            
+            // Обновляем статус подключения
+            if (!isConnected) {
+                isConnected = true;
+                document.getElementById('connectionStatus').className = 'connection-status connected';
+                document.getElementById('statusText').textContent = 'Подключено';
+            }
+        }
+
+        function fetchData() {
+            fetch('/api/value')
+                .then(response => response.json())
+                .then(data => {
+                    updateDisplay(data);
+                })
+                .catch(error => {
+                    console.error('Ошибка получения данных:', error);
+                    document.getElementById('connectionStatus').className = 'connection-status disconnected';
+                    document.getElementById('statusText').textContent = 'Ошибка подключения';
+                    isConnected = false;
+                });
+        }
+
+        // Загружаем данные сразу и каждые 2 секунды
+        fetchData();
+        setInterval(fetchData, 2000);
+    </script>
+</body>
+</html>

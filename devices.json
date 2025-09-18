@@ -1,0 +1,46 @@
+[
+  {
+    "name": "rash",
+    "type": "tcp",
+    "deviceId": 1,
+    "pollInterval": 2000,
+    "tags": [
+      {
+        "name": "hhh",
+        "registerType": "holding",
+        "address": 97,
+        "dataType": "float",
+        "currentValue": 102.49195098876953
+      }
+    ],
+    "address": "10.29.101.200",
+    "port": 502,
+    "id": "1758100799955",
+    "connected": true
+  },
+  {
+    "name": "пр",
+    "type": "rtu",
+    "deviceId": 1,
+    "pollInterval": 2000,
+    "tags": [
+      {
+        "name": "512",
+        "registerType": "holding",
+        "address": 512,
+        "dataType": "uint16",
+        "currentValue": 0
+      },
+      {
+        "name": "513",
+        "registerType": "holding",
+        "address": 513,
+        "dataType": "uint16",
+        "currentValue": 0
+      }
+    ],
+    "address": "COM7",
+    "baudRate": 9600,
+    "id": "1758187654102"
+  }
+]
