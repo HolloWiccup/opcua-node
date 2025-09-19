@@ -553,4 +553,37 @@ process.on("unhandledRejection", (error) => {
 main().catch(error => {
     console.error("Критическая ошибка при запуске:", error);
     process.exit(1);
+
 });
+
+const net = require('net');
+
+// Создаем TCP сервер для приема подключений от модемов
+const tcpServer = net.createServer((socket) => {
+    const clientAddress = `${socket.remoteAddress}:${socket.remotePort}`;
+    console.log(`Новое подключение от модема: ${clientAddress}`);
+    
+    socket.on('data', (data) => {
+        console.log(`Данные от модема ${clientAddress}:`, data.toString());
+        // Здесь можно добавить обработку Modbus данных
+    });
+    
+    socket.on('close', () => {
+        console.log(`Соединение с модемом ${clientAddress} закрыто`);
+    });
+    
+    socket.on('error', (err) => {
+        console.error(`Ошибка с модемом ${clientAddress}:`, err.message);
+    });
+});
+
+// Запускаем прослушивание на всех портах диапазона
+function startModbusServers() {
+    for (let port = 8000; port <= 8100; port++) {
+        tcpServer.listen(port, '0.0.0.0', () => {
+            console.log(`TCP сервер запущен на порту ${port}`);
+        }).on('error', (err) => {
+            console.error(`Не удалось запустить сервер на порту ${port}:`, err.message);
+        });
+    }
+}
