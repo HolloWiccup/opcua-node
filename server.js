@@ -225,7 +225,7 @@ async function main() {
     } catch (error) {
         console.error("Ошибка:", error);
     }
-    startModbusServers();
+    // startModbusServers();
 }
 
 function initializeDevice(device) {
@@ -560,32 +560,82 @@ main().catch(error => {
 const net = require('net');
 
 // Создаем TCP сервер для приема подключений от модемов
+// const tcpServer = net.createServer((socket) => {
+//     const clientAddress = `${socket.remoteAddress}:${socket.remotePort}`;
+//     console.log(`Новое подключение от модема: ${clientAddress}`);
+    
+//     socket.on('data', (data) => {
+//         console.log(`Данные от модема ${clientAddress}:`, data.toString());
+//         // Здесь можно добавить обработку Modbus данных
+//     });
+    
+//     socket.on('close', () => {
+//         console.log(`Соединение с модемом ${clientAddress} закрыто`);
+//     });
+    
+//     socket.on('error', (err) => {
+//         console.error(`Ошибка с модемом ${clientAddress}:`, err.message);
+//     });
+// });
+
+// // Запускаем прослушивание на всех портах диапазона
+// function startModbusServers() {
+//     for (let port = 8000; port <= 8100; port++) {
+//         tcpServer.listen(port, '0.0.0.0', () => {
+//             console.log(`TCP сервер запущен на порту ${port}`);
+//         }).on('error', (err) => {
+//             console.error(`Не удалось запустить сервер на порту ${port}:`, err.message);
+//         });
+//     }
+// }
+
 const tcpServer = net.createServer((socket) => {
-    const clientAddress = `${socket.remoteAddress}:${socket.remotePort}`;
-    console.log(`Новое подключение от модема: ${clientAddress}`);
-    
-    socket.on('data', (data) => {
-        console.log(`Данные от модема ${clientAddress}:`, data.toString());
-        // Здесь можно добавить обработку Modbus данных
-    });
-    
-    socket.on('close', () => {
-        console.log(`Соединение с модемом ${clientAddress} закрыто`);
-    });
-    
-    socket.on('error', (err) => {
-        console.error(`Ошибка с модемом ${clientAddress}:`, err.message);
-    });
+  console.log('ESP8266 connected:', socket.remoteAddress);
+  deviceConnected = true;
+
+  socket.on('data', (data) => {
+    try {
+      const message = data.toString().trim();
+      console.log('Received from ESP:', message);
+
+      // Парсим данные в формате: TEMP:25.5,HUM:60.2
+      if (message.includes('TEMP:') && message.includes('HUM:')) {
+        const tempMatch = message.match(/TEMP:([\d.]+)/);
+        const humMatch = message.match(/HUM:([\d.]+)/);
+
+        if (tempMatch && humMatch) {
+          temperature = parseFloat(tempMatch[1]);
+          humidity = parseFloat(humMatch[1]);
+
+          console.log(`Updated - Temperature: ${temperature}°C, Humidity: ${humidity}%`);
+        }
+      }
+
+      // Отправляем подтверждение
+      socket.write('OK\n');
+
+    } catch (error) {
+      console.error('Error parsing data:', error);
+    }
+  });
+
+  socket.on('close', () => {
+    console.log('ESP8266 disconnected');
+    deviceConnected = false;
+  });
+
+  socket.on('error', (err) => {
+    console.error('Socket error:', err);
+    deviceConnected = false;
+  });
 });
 
-// Запускаем прослушивание на всех портах диапазона
-function startModbusServers() {
-    for (let port = 8000; port <= 8100; port++) {
-        tcpServer.listen(port, '0.0.0.0', () => {
-            console.log(`TCP сервер запущен на порту ${port}`);
-        }).on('error', (err) => {
-            console.error(`Не удалось запустить сервер на порту ${port}:`, err.message);
-        });
-    }
-}
+// Запускаем сервер
+server.start(() => {
+  console.log(`OPC UA Server is listening on port ${server.endpoints[0].port}`);
+  console.log(`OPC UA endpoint: opc.tcp://localhost:4840/UA/MyServer`);
+});
 
+tcpServer.listen(8010, '0.0.0.0', () => {
+  console.log('TCP Server for ESP8266 listening on port 8010');
+});
