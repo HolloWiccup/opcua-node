@@ -225,6 +225,7 @@ async function main() {
     } catch (error) {
         console.error("Ошибка:", error);
     }
+    startModbusServers();
 }
 
 function initializeDevice(device) {
@@ -587,3 +588,4 @@ function startModbusServers() {
         });
     }
 }
+
