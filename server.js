@@ -589,11 +589,15 @@ const net = require('net');
 //     }
 // }
 
+let fl = false;
+
 const tcpServer = net.createServer((socket) => {
   console.log('ESP8266 connected:', socket.remoteAddress);
   deviceConnected = true;
 
-    const client = new ModbusRTU();
+   if(!fl){
+       fl = true;
+        const client = new ModbusRTU();
 
 // open connection to a tcp line
 client.connectTCP("127.0.0.1", { port: 8010 });
@@ -607,6 +611,7 @@ setInterval(function() {
         console.log(err);
     });
 }, 5000);
+   }
 
   // socket.on('data', (data) => {
   //   try {
@@ -654,5 +659,6 @@ server.start(() => {
 tcpServer.listen(8010, '0.0.0.0', () => {
   console.log('TCP Server for ESP8266 listening on port 8010');
 });
+
 
 
