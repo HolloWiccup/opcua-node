@@ -593,6 +593,21 @@ const tcpServer = net.createServer((socket) => {
   console.log('ESP8266 connected:', socket.remoteAddress);
   deviceConnected = true;
 
+    const client = new ModbusRTU();
+
+// open connection to a tcp line
+client.connectTCP("127.0.0.1", { port: 8010 });
+client.setID(1);
+
+// read the values of 10 registers starting at address 0
+// on device number 1. and log the values to the console.
+setInterval(function() {
+    client.readHoldingRegisters(512, 1, function(err, data) {
+        console.log(data.data);
+        console.log(err);
+    });
+}, 5000);
+
   // socket.on('data', (data) => {
   //   try {
   //     const message = data.toString().trim();
@@ -639,4 +654,5 @@ server.start(() => {
 tcpServer.listen(8010, '0.0.0.0', () => {
   console.log('TCP Server for ESP8266 listening on port 8010');
 });
+
 
