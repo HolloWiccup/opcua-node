@@ -593,31 +593,31 @@ const tcpServer = net.createServer((socket) => {
   console.log('ESP8266 connected:', socket.remoteAddress);
   deviceConnected = true;
 
-  socket.on('data', (data) => {
-    try {
-      const message = data.toString().trim();
-      console.log('Received from ESP:', message);
+  // socket.on('data', (data) => {
+  //   try {
+  //     const message = data.toString().trim();
+  //     console.log('Received from ESP:', message);
 
-      // Парсим данные в формате: TEMP:25.5,HUM:60.2
-      if (message.includes('TEMP:') && message.includes('HUM:')) {
-        const tempMatch = message.match(/TEMP:([\d.]+)/);
-        const humMatch = message.match(/HUM:([\d.]+)/);
+  //     // Парсим данные в формате: TEMP:25.5,HUM:60.2
+  //     if (message.includes('TEMP:') && message.includes('HUM:')) {
+  //       const tempMatch = message.match(/TEMP:([\d.]+)/);
+  //       const humMatch = message.match(/HUM:([\d.]+)/);
 
-        if (tempMatch && humMatch) {
-          temperature = parseFloat(tempMatch[1]);
-          humidity = parseFloat(humMatch[1]);
+  //       if (tempMatch && humMatch) {
+  //         temperature = parseFloat(tempMatch[1]);
+  //         humidity = parseFloat(humMatch[1]);
 
-          console.log(`Updated - Temperature: ${temperature}°C, Humidity: ${humidity}%`);
-        }
-      }
+  //         console.log(`Updated - Temperature: ${temperature}°C, Humidity: ${humidity}%`);
+  //       }
+  //     }
 
-      // Отправляем подтверждение
-      socket.write('OK\n');
+  //     // Отправляем подтверждение
+  //     socket.write('OK\n');
 
-    } catch (error) {
-      console.error('Error parsing data:', error);
-    }
-  });
+  //   } catch (error) {
+  //     console.error('Error parsing data:', error);
+  //   }
+  // });
 
   socket.on('close', () => {
     console.log('ESP8266 disconnected');
@@ -639,3 +639,4 @@ server.start(() => {
 tcpServer.listen(8010, '0.0.0.0', () => {
   console.log('TCP Server for ESP8266 listening on port 8010');
 });
+
